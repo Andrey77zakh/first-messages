@@ -77,7 +77,7 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            background: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%23ff9eb5' fill-opacity='0.1' d='M20,10 Q30,0 40,10 T60,10 T80,10 Q90,20 80,30 T60,40 T40,50 T20,40 T0,30 Q-10,20 0,10 T20,10 Z'/%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cpath fill='%23ff9eb5' fill-opacity='0.1' d='M20,10 Q30,0 40,10 T60,10 T80,10 Q90,20 80,30 T60,40 T40,50 T20,40 T0,30 Q-10,20 0,10 T20,10 Z'/%3E%3C/svg%3E");
         }
         .day-divider {
             text-align: center;
@@ -136,9 +136,7 @@
         .message-meta {
             font-size: 11px;
             margin-top: 6px;
-            opacity: 0.9;
             font-weight: 600;
-            color: #8a5a75;
         }
         .controls-bar {
             background: white;
@@ -211,7 +209,7 @@
 
     <div class="chat-container">
         <div class="chat-header">
-            Наша первая переписка 💘
+            Начало любви 💘
             <button class="header-btn" id="swapBtn" title="Поменять стороны">🔄</button>
             <button class="header-btn" id="volumeBtn" title="Включить музыку">🔊</button>
         </div>
@@ -325,14 +323,14 @@
         volumeBtn.addEventListener('click', () => {
             if (isMusicPlaying) {
                 bgMusic.pause();
-                volumeBtn.textContent = '🔇'; // Правильно: когда музыка выключена — значок без звука
+                volumeBtn.textContent = '🔇';
                 isMusicPlaying = false;
             } else {
                 bgMusic.play().catch(e => {
                     console.log("Пользователь не взаимодействовал с сайтом — автовоспроизведение заблокировано");
                     alert("Нажмите ОК, а затем снова нажмите 🔊 для включения музыки.");
                 });
-                volumeBtn.textContent = '🔊'; // Правильно: когда музыка играет — значок со звуком
+                volumeBtn.textContent = '🔊';
                 isMusicPlaying = true;
             }
         });
@@ -363,31 +361,37 @@
                 const msgDiv = document.createElement('div');
                 msgDiv.className = `message ${msg.author.includes('Андрей') ? 'andrey' : 'liza'}`;
 
+                const metaDiv = document.createElement('div');
+                metaDiv.className = 'message-meta';
+                metaDiv.textContent = `${msg.time} • ${msg.author}`;
+
+                // Устанавливаем стиль сообщения и мета-информации в зависимости от положения
                 if (!andreyOnRight && msg.author.includes('Андрей')) {
                     msgDiv.style.alignSelf = 'flex-start';
                     msgDiv.style.background = 'linear-gradient(135deg, #fff0f5, #ffd6e7)';
                     msgDiv.style.color = '#5a3a49';
                     msgDiv.style.border = '1px solid #ffb7c5';
                     msgDiv.style.borderBottomLeftRadius = '8px';
+                    metaDiv.style.color = '#8a5a75'; // тёмный цвет для светлого фона
                 } else if (andreyOnRight && msg.author.includes('Андрей')) {
                     msgDiv.style.alignSelf = 'flex-end';
                     msgDiv.style.background = 'linear-gradient(135deg, #ff6b9d, #ff4d88)';
                     msgDiv.style.color = 'white';
                     msgDiv.style.borderBottomRightRadius = '8px';
+                    metaDiv.style.color = 'rgba(255,255,255,0.85)'; // светлый для тёмного фона
                 } else if (!andreyOnRight && msg.author.includes('Елизавета')) {
                     msgDiv.style.alignSelf = 'flex-end';
                     msgDiv.style.background = 'linear-gradient(135deg, #ff6b9d, #ff4d88)';
                     msgDiv.style.color = 'white';
                     msgDiv.style.borderBottomRightRadius = '8px';
+                    metaDiv.style.color = 'rgba(255,255,255,0.85)';
+                } else {
+                    // Стандартный стиль для Лизы справа (или Андрея слева, если не попало в условия выше)
+                    metaDiv.style.color = '#8a5a75';
                 }
 
                 msgDiv.textContent = msg.text;
-
-                const metaDiv = document.createElement('div');
-                metaDiv.className = 'message-meta';
-                metaDiv.textContent = `${msg.time} • ${msg.author}`; // ✅ Исправлено: всегда есть разделитель
                 msgDiv.appendChild(metaDiv);
-
                 chatBody.appendChild(msgDiv);
             }
 
