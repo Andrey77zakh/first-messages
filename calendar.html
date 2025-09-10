@@ -11,7 +11,7 @@
             background: linear-gradient(135deg, #fff5f7, #ffe6ee);
             background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffccd5' fill-opacity='0.2' d='M30,20 Q40,10 50,20 T70,20 T90,20 Q100,30 90,40 T70,50 T50,60 T30,50 T10,40 Q0,30 10,20 T30,20 Z'/%3E%3C/svg%3E");
             margin: 0;
-            padding: 20px;
+            padding: 0;
             color: #5a3a49;
         }
         .container {
@@ -23,6 +23,8 @@
             padding: 30px;
             box-shadow: 0 8px 32px rgba(255, 105, 135, 0.2);
             position: relative;
+            margin-top: 20px;
+            margin-bottom: 40px;
         }
         .header-row {
             display: flex;
@@ -282,6 +284,82 @@
             height: 20px;
             border-radius: 6px;
         }
+
+        /* ============ БУРГЕР-МЕНЮ ============ */
+        .burger-menu {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .burger-line {
+            height: 4px;
+            width: 100%;
+            background: #d6336c;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+            padding: 80px 20px 20px;
+            transition: left 0.4s ease;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .sidebar-item {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #fff0f5, #ffd6e7);
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #d6336c;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: block;
+            text-align: left;
+        }
+        .sidebar-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ff6b9d, #ff4d88);
+            color: white;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 98;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
         @media (max-width: 768px) {
             .header-row {
                 flex-direction: column;
@@ -328,6 +406,27 @@
     </style>
 </head>
 <body>
+    <!-- Бургер-меню -->
+    <div class="burger-menu" id="burgerMenu">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+    </div>
+
+    <!-- Боковая шторка -->
+    <div class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-item">🏠 Главная страница</a>
+        <a href="love_story.html" class="sidebar-item">💌 Первые сообщения</a>
+        <a href="calendar.html" class="sidebar-item">📅 Календарь любви</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 1</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 2</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 3</a>
+    </div>
+
+    <!-- Оверлей (затемнение) -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Основной контент календаря -->
     <div class="container">
         <div class="header-row">
             <h1>Наш календарь любви <span>❤️</span></h1>
@@ -340,7 +439,6 @@
             <select id="monthSelect"></select>
         </div>
 
-        <!-- ТАЙМЕР ОБРАТНОГО ОТСЧЁТА — СРАЗУ ПОД СЕЛЕКТОРОМ ГОДА -->
         <div class="countdown-section" id="countdown">
             ⏳ Загрузка обратного отсчёта...
         </div>
@@ -676,7 +774,6 @@
             
             let upcomingHolidays = [];
             
-            // Собираем ВСЕ праздники от сегодняшнего дня и вперёд — БЕЗ ограничений
             for (let year = 2025; year <= 2115; year++) {
                 for (let month = 0; month < 12; month++) {
                     const lastDay = new Date(year, month + 1, 0).getDate();
@@ -696,7 +793,6 @@
                 }
             }
             
-            // Сортируем по дате
             upcomingHolidays.sort((a, b) => a.date - b.date);
             
             if (upcomingHolidays.length > 0) {
@@ -716,6 +812,23 @@
                 countdownElement.style.background = '#f3e5f5';
             }
         }
+
+        // Бургер-меню
+        const burgerMenu = document.getElementById('burgerMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        burgerMenu.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            burgerMenu.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            burgerMenu.classList.remove('active');
+        });
 
         renderYearCalendar();
         updateCountdown();
