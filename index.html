@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наша любовь</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fff5f7, #ffe6ee);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffccd5' fill-opacity='0.2' d='M30,20 Q40,10 50,20 T70,20 T90,20 Q100,30 90,40 T70,50 T50,60 T30,50 T10,40 Q0,30 10,20 T30,20 Z'/%3E%3C/svg%3E");
+            margin: 0;
+            padding: 0;
+            color: #5a3a49;
+            height: 100vh;
+            overflow-x: hidden;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            font-size: 48px;
+            color: #ff4d88;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        h1 span {
+            font-size: 64px;
+            display: block;
+            margin-top: 10px;
+        }
+        .burger-menu {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            z-index: 100;
+        }
+        .burger-line {
+            height: 4px;
+            width: 100%;
+            background: #d6336c;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 5px 0 25px rgba(0,0,0,0.1);
+            padding: 60px 20px 20px;
+            transition: left 0.4s ease;
+            z-index: 99;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        .sidebar.active {
+            left: 0;
+        }
+        .sidebar-item {
+            padding: 15px 20px;
+            background: linear-gradient(135deg, #fff0f5, #ffd6e7);
+            border-radius: 16px;
+            font-weight: 600;
+            font-size: 18px;
+            color: #d6336c;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: block;
+            text-align: left;
+        }
+        .sidebar-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #ff6b9d, #ff4d88);
+            color: white;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 98;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+        }
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 36px;
+            }
+            h1 span {
+                font-size: 48px;
+            }
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Бургер-меню -->
+    <div class="burger-menu" id="burgerMenu">
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+        <div class="burger-line"></div>
+    </div>
+
+    <!-- Боковая шторка -->
+    <div class="sidebar" id="sidebar">
+        <a href="love_story.html" class="sidebar-item">💌 Первые сообщения</a>
+        <a href="calendar.html" class="sidebar-item">📅 Календарь любви</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 1</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 2</a>
+        <a href="#" class="sidebar-item">➕ Другая функция 3</a>
+    </div>
+
+    <!-- Оверлей (затемнение) -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Центральный контент -->
+    <div class="container">
+        <h1>Наша любовь <span>❤️</span></h1>
+        <p>Откройте меню, чтобы выбрать раздел</p>
+    </div>
+
+    <script>
+        const burgerMenu = document.getElementById('burgerMenu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        burgerMenu.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            // Анимация бургера в "крестик"
+            burgerMenu.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+            burgerMenu.classList.remove('active');
+        });
+
+        // Анимация бургера в крестик
+        burgerMenu.addEventListener('click', function() {
+            this.classList.toggle('active');
+        });
+    </script>
+</body>
+</html>
