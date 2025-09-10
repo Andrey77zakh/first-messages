@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Наш календарь любви</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, #fff5f7, #ffe6ee);
+            background-image: url("image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffccd5' fill-opacity='0.2' d='M30,20 Q40,10 50,20 T70,20 T90,20 Q100,30 90,40 T70,50 T50,60 T30,50 T10,40 Q0,30 10,20 T30,20 Z'/%3E%3C/svg%3E");
+            margin: 0;
+            padding: 20px;
+            color: #5a3a49;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(255, 105, 135, 0.2);
+            position: relative;
+        }
+        .header-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .current-date {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: #d6336c;
+            background: rgba(255,245,247,0.8);
+            padding: 8px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff4d88;
+            font-size: 36px;
+            margin: 0;
+            font-weight: 700;
+            line-height: 1.2;
+            text-align: center;
+        }
+        .countdown-section {
+            text-align: center;
+            font-size: 22px;
+            font-weight: 600;
+            margin: 25px 0;
+            padding: 16px;
+            background: #fff8e1;
+            border-radius: 16px;
+            border: 2px solid #ffc107;
+            color: #d6336c;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+        }
+        .current-year {
+            text-align: center;
+            font-size: 28px;
+            color: #d6336c;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        select, button {
+            padding: 12px 24px;
+            border-radius: 24px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+        }
+        select {
+            background: #fff0f5;
+            border: 2px solid #ffb7c5;
+            min-width: 120px;
+        }
+        button {
+            background: linear-gradient(135deg, #ff6b9d, #ff4d88);
+            color: white;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(255, 105, 135, 0.3);
+        }
+        .year-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+        .month-card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+        .month-card:hover {
+            transform: translateY(-5px);
+        }
+        .month-title {
+            text-align: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: #d6336c;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ffe6ee;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+        .day-header {
+            text-align: center;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 8px 4px;
+            background: #fff0f5;
+            border-radius: 12px;
+            color: #d6336c;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 13px;
+        }
+        .day-cell {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 6px;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: visible;
+            border: 2px solid transparent;
+        }
+        .day-cell.empty {
+            visibility: hidden;
+        }
+        .day-cell.today {
+            border: 4px solid #9c27b0 !important;
+            transform: scale(1.05);
+            z-index: 2;
+            box-shadow: 0 0 15px rgba(156, 39, 176, 0.4);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(156, 39, 176, 0.4); }
+            100% { box-shadow: 0 0 0 10px rgba(156, 39, 176, 0); }
+        }
+        .saturday {
+            background: linear-gradient(135deg, #e8f5e9, #81c784) !important;
+            color: #2e7d32;
+        }
+
+        .bg-birthday { background: #ff9800 !important; color: white; }
+        .bg-baptism { background: #2196f3 !important; color: white; }
+        .bg-love { background: #e91e63 !important; color: white; }
+        .bg-other { background: #9c27b0 !important; color: white; }
+
+        .popup {
+            visibility: hidden;
+            position: absolute;
+            top: 105%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            width: 200px;
+            z-index: 1000;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            text-align: center;
+            border: 2px solid #ffb7c5;
+        }
+        .popup.active {
+            visibility: visible;
+            opacity: 1;
+            top: 100%;
+        }
+        .popup-arrow {
+            position: absolute;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 8px solid #ffb7c5;
+        }
+        .popup-title {
+            font-weight: 700;
+            color: #d6336c;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        .popup-content {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.4;
+        }
+        .popup-close {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .popup-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .legend {
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255,255,255,0.5);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .legend h3 {
+            text-align: center;
+            margin-bottom: 15px;
+            color: #d6336c;
+            font-size: 18px;
+        }
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+        }
+        @media (max-width: 768px) {
+            .header-row {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            h1 {
+                font-size: 28px;
+                text-align: center;
+            }
+            .current-date {
+                position: static;
+                transform: none;
+                margin-top: 10px;
+                font-size: 16px;
+                padding: 6px 12px;
+            }
+            .countdown-section {
+                font-size: 18px;
+                padding: 12px;
+            }
+            .year-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .month-card {
+                padding: 15px;
+            }
+            .day-cell {
+                font-size: 13px;
+                padding: 4px;
+            }
+            .current-year {
+                font-size: 22px;
+            }
+            .popup {
+                width: 180px;
+                font-size: 13px;
+            }
+            .day-header {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header-row">
+            <h1>Наш календарь любви <span>❤️</span></h1>
+            <div class="current-date">10.09.2025</div>
+        </div>
+        <div class="current-year" id="currentYearTitle">2025</div>
+        
+        <div class="controls">
+            <select id="yearSelect"></select>
+            <select id="monthSelect"></select>
+        </div>
+
+        <!-- ТАЙМЕР ОБРАТНОГО ОТСЧЁТА — СРАЗУ ПОД СЕЛЕКТОРОМ ГОДА -->
+        <div class="countdown-section" id="countdown">
+            ⏳ Загрузка обратного отсчёта...
+        </div>
+
+        <div class="year-grid" id="yearGrid">
+            <!-- Месяцы будут здесь -->
+        </div>
+
+        <div class="legend">
+            <h3>Легенда</h3>
+            <div class="legend-grid">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #ff9800;"></div>
+                    <span>День рождения 🎂</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #2196f3;"></div>
+                    <span>Крещение ✝️</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e91e63;"></div>
+                    <span>Любовь 💘</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #9c27b0;"></div>
+                    <span>Праздник 🌿</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #e8f5e9;"></div>
+                    <span>Суббота 🍃</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: #fff; border: 4px solid #9c27b0;"></div>
+                    <span>Сегодня 🌸</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fullNames = {
+            "День рождения отца Елизаветы (1953)": "Михаил Владимирович",
+            "День рождения бабушки Елизаветы (1953)": "Светлана Ивановна",
+            "День рождения отца Андрея (1966)": "Андрей Олегович",
+            "День рождения мамы Елизаветы (1972)": "Елена Геннадьевна",
+            "День рождения мамы Андрея (1977)": "Тамара Николаевна",
+            "День рождения сестры Андрея Дарины (2006)": "Дарина Андреевна",
+            "День рождения брата Андрея Алексея (2012)": "Алексей Андреевич",
+            "День рождения брата Андрея Михаила (2013)": "Михаил Андреевич"
+        };
+
+        const allHolidays = {
+            "09-09": { title: "День рождения Андрея", type: "birthday" },
+            "19-07": { title: "День рождения Елизаветы", type: "birthday" },
+            "24-08": { title: "День крещения Андрея", type: "baptism" },
+            "28-05": { title: "Первая встреча", type: "love" },
+            "10-09": { title: "Первое сообщение", type: "love" },
+            "12-03": { title: "День крещения Елизаветы", type: "baptism" },
+            "28-08": { title: "Предложение встречаться", type: "love" },
+            "14-01": { title: "Первый поцелуй", type: "love" },
+            "14-02": { title: "День всех влюбленных", type: "love" },
+            "08-07": { title: "День семьи, любви и верности", type: "love" },
+            "08-03": { title: "Женский день", type: "other" },
+            "23-02": { title: "Мужской день", type: "other" },
+            "31-12": { title: "Новый год (канун)", type: "other" },
+            "01-01": { title: "Новый год", type: "other" },
+            "09-05": { title: "День Победы", type: "other" },
+            "24-12": { title: "День рождения отца Елизаветы (1953)", type: "birthday" },
+            "26-08": { title: "День рождения бабушки Елизаветы (1953)", type: "birthday" },
+            "28-02": { title: "День рождения отца Андрея (1966)", type: "birthday" },
+            "22-09": { title: "День рождения мамы Елизаветы (1972)", type: "birthday" },
+            "05-08": { title: "День рождения мамы Андрея (1977)", type: "birthday" },
+            "29-12": { title: "День рождения сестры Андрея Дарины (2006)", type: "birthday" },
+            "24-05": { title: "День рождения брата Андрея Алексея (2012)", type: "birthday" },
+            "05-10": { title: "День рождения брата Андрея Михаила (2013)", type: "birthday" }
+        };
+
+        const dayNames = ["ВС", "ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ"];
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+                           "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"];
+
+        const yearSelect = document.getElementById('yearSelect');
+        const monthSelect = document.getElementById('monthSelect');
+        const yearGrid = document.getElementById('yearGrid');
+        const currentYearTitle = document.getElementById('currentYearTitle');
+        const countdownElement = document.getElementById('countdown');
+
+        for (let year = 1945; year <= 2115; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            yearSelect.appendChild(option);
+        }
+
+        monthNames.forEach((month, index) => {
+            const option = document.createElement('option');
+            option.value = index;
+            option.textContent = month;
+            monthSelect.appendChild(option);
+        });
+
+        const now = new Date(2025, 8, 10);
+        yearSelect.value = now.getFullYear();
+        monthSelect.value = now.getMonth();
+        currentYearTitle.textContent = now.getFullYear();
+
+        function scrollToMonth(monthIndex) {
+            setTimeout(() => {
+                const monthCard = document.querySelector(`.month-card:nth-child(${monthIndex + 1})`);
+                if (monthCard) {
+                    monthCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+
+        window.addEventListener('load', () => {
+            scrollToMonth(8);
+        });
+
+        yearSelect.addEventListener('change', () => {
+            currentYearTitle.textContent = yearSelect.value;
+            renderYearCalendar();
+            updateCountdown();
+        });
+
+        monthSelect.addEventListener('change', () => {
+            renderYearCalendar();
+            updateCountdown();
+            scrollToMonth(parseInt(monthSelect.value));
+        });
+
+        let activePopup = null;
+
+        function closeActivePopup() {
+            if (activePopup) {
+                activePopup.classList.remove('active');
+                setTimeout(() => {
+                    if (activePopup.parentNode) {
+                        activePopup.parentNode.removeChild(activePopup);
+                    }
+                }, 300);
+                activePopup = null;
+            }
+        }
+
+        document.addEventListener('click', () => {
+            closeActivePopup();
+        });
+
+        function createPopup(element, title, content) {
+            closeActivePopup();
+
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            
+            const arrow = document.createElement('div');
+            arrow.className = 'popup-arrow';
+            popup.appendChild(arrow);
+            
+            const popupTitle = document.createElement('div');
+            popupTitle.className = 'popup-title';
+            popupTitle.textContent = title;
+            popup.appendChild(popupTitle);
+            
+            const popupContent = document.createElement('div');
+            popupContent.className = 'popup-content';
+            popupContent.textContent = content;
+            popup.appendChild(popupContent);
+
+            const closeBtn = document.createElement('button');
+            closeBtn.className = 'popup-close';
+            closeBtn.textContent = '×';
+            closeBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                closeActivePopup();
+            });
+            popup.appendChild(closeBtn);
+
+            element.appendChild(popup);
+            activePopup = popup;
+
+            setTimeout(() => {
+                popup.classList.add('active');
+            }, 10);
+
+            setTimeout(() => {
+                if (popup.classList.contains('active')) {
+                    closeActivePopup();
+                }
+            }, 30000);
+
+            popup.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('popup-close')) {
+                    e.stopPropagation();
+                    closeActivePopup();
+                }
+            });
+        }
+
+        function getRussianAgeSuffix(age) {
+            if (age % 100 >= 11 && age % 100 <= 19) {
+                return "лет";
+            }
+            switch (age % 10) {
+                case 1: return "год";
+                case 2:
+                case 3:
+                case 4: return "года";
+                default: return "лет";
+            }
+        }
+
+        function extractBirthYear(str) {
+            const match = str.match(/\((\d{4})\)/);
+            return match ? parseInt(match[1]) : null;
+        }
+
+        function renderYearCalendar() {
+            yearGrid.innerHTML = '';
+            const selectedYear = parseInt(yearSelect.value);
+            const today = new Date(2025, 8, 10);
+
+            for (let month = 0; month < 12; month++) {
+                const monthCard = document.createElement('div');
+                monthCard.className = 'month-card';
+                
+                const monthTitle = document.createElement('div');
+                monthTitle.className = 'month-title';
+                monthTitle.textContent = monthNames[month];
+                monthCard.appendChild(monthTitle);
+
+                const calendar = document.createElement('div');
+                calendar.className = 'calendar';
+
+                dayNames.forEach(day => {
+                    const dayHeader = document.createElement('div');
+                    dayHeader.className = 'day-header';
+                    dayHeader.textContent = day;
+                    calendar.appendChild(dayHeader);
+                });
+
+                const firstDay = new Date(selectedYear, month, 1);
+                const lastDay = new Date(selectedYear, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                let startingDayOfWeek = firstDay.getDay();
+
+                for (let i = 0; i < startingDayOfWeek; i++) {
+                    const emptyCell = document.createElement('div');
+                    emptyCell.className = 'day-cell empty';
+                    calendar.appendChild(emptyCell);
+                }
+
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayCell = document.createElement('div');
+                    dayCell.className = 'day-cell';
+                    dayCell.textContent = day;
+
+                    const date = new Date(selectedYear, month, day);
+                    const dayOfWeek = date.getDay();
+                    if (dayOfWeek === 6) {
+                        dayCell.classList.add('saturday');
+                    }
+
+                    const dayMonthKey = `${String(day).padStart(2, '0')}-${String(month + 1).padStart(2, '0')}`;
+                    let holiday = allHolidays[dayMonthKey];
+                    let mainTitle = '';
+                    let mainContent = '';
+                    let bgColorClass = '';
+
+                    if (holiday) {
+                        mainTitle = holiday.title;
+                        switch(holiday.type) {
+                            case 'birthday': bgColorClass = 'bg-birthday'; break;
+                            case 'baptism': bgColorClass = 'bg-baptism'; break;
+                            case 'love': bgColorClass = 'bg-love'; break;
+                            default: bgColorClass = 'bg-other';
+                        }
+
+                        const birthYear = extractBirthYear(mainTitle);
+                        if (birthYear) {
+                            const age = selectedYear - birthYear;
+                            const fullName = fullNames[mainTitle] ? ` — ${fullNames[mainTitle]}` : '';
+                            mainContent = `Исполняется ${age} ${getRussianAgeSuffix(age)}${fullName}`;
+                        } else {
+                            const eventDescriptions = {
+                                "Первая встреча": "Начало нашей истории ❤️",
+                                "Первое сообщение": "Когда всё началось 💌",
+                                "Предложение встречаться": "Начало наших свиданий, стали парой 💞",
+                                "Первый поцелуй": "Нежный момент 🌹",
+                                "День всех влюбленных": "Праздник сердец 💞",
+                                "День семьи, любви и верности": "Наш общий праздник 🕊️",
+                                "Женский день": "День весны и любви 🌸",
+                                "Мужской день": "День защитников 💪",
+                                "День крещения Андрея": "День обновления ✝️",
+                                "День крещения Елизаветы": "День обновления ✝️",
+                                "Новый год (канун)": "Праздник чудес 🎄",
+                                "Новый год": "Начало нового цикла 🎇",
+                                "День Победы": "День памяти и славы 🕊️"
+                            };
+                            mainContent = eventDescriptions[mainTitle] || "Особенный день";
+                        }
+
+                        if (bgColorClass) dayCell.classList.add(bgColorClass);
+
+                        dayCell.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            createPopup(dayCell, mainTitle, mainContent);
+                        });
+                    } else {
+                        if (dayOfWeek === 6) {
+                            dayCell.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                createPopup(dayCell, "День покоя", "День отдыха и духовного обновления 🌿");
+                            });
+                        }
+                    }
+
+                    if (selectedYear === 2025 && month === 8 && day === 10) {
+                        dayCell.classList.add('today');
+                    }
+
+                    calendar.appendChild(dayCell);
+                }
+
+                monthCard.appendChild(calendar);
+                yearGrid.appendChild(monthCard);
+            }
+        }
+
+        function updateCountdown() {
+            const today = new Date(2025, 8, 10);
+            const currentYear = parseInt(yearSelect.value);
+            
+            let upcomingHolidays = [];
+            
+            // Собираем ВСЕ праздники от сегодняшнего дня и вперёд — БЕЗ ограничений
+            for (let year = 2025; year <= 2115; year++) {
+                for (let month = 0; month < 12; month++) {
+                    const lastDay = new Date(year, month + 1, 0).getDate();
+                    for (let day = 1; day <= lastDay; day++) {
+                        const dayMonthKey = `${String(day).padStart(2, '0')}-${String(month + 1).padStart(2, '0')}`;
+                        if (allHolidays[dayMonthKey]) {
+                            const holidayDate = new Date(year, month, day);
+                            if (holidayDate >= today) {
+                                upcomingHolidays.push({
+                                    date: holidayDate,
+                                    title: allHolidays[dayMonthKey].title,
+                                    type: allHolidays[dayMonthKey].type
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Сортируем по дате
+            upcomingHolidays.sort((a, b) => a.date - b.date);
+            
+            if (upcomingHolidays.length > 0) {
+                const nextHoliday = upcomingHolidays[0];
+                
+                if (nextHoliday.date.toDateString() === today.toDateString()) {
+                    countdownElement.innerHTML = `🎉 <span style="color: #e91e63; font-weight: bold;">Сегодня: "${nextHoliday.title}"</span>`;
+                    countdownElement.style.background = '#fce4ec';
+                } else {
+                    const timeDiff = nextHoliday.date - today;
+                    const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+                    countdownElement.innerHTML = `⏳ <span style="color: #9c27b0; font-weight: bold;">До "${nextHoliday.title}" — ${daysDiff} ${getRussianAgeSuffix(daysDiff)}</span>`;
+                    countdownElement.style.background = '#f3e5f5';
+                }
+            } else {
+                countdownElement.textContent = "🎉 Праздников не запланировано до 2115 года!";
+                countdownElement.style.background = '#f3e5f5';
+            }
+        }
+
+        renderYearCalendar();
+        updateCountdown();
+    </script>
+</body>
+</html>
